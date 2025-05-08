@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, reverse_lazy
 from db_app import views
 from django.contrib.auth import views as auth_views
 from django.conf import settings
@@ -13,6 +13,7 @@ urlpatterns = [
     path('guest/', views.guest_view, name='guest_rooms'),
     path('login/', views.login_page, name='login_page'),
     path('register/', views.register_page, name='register_page'),
+    path('logout/', views.custom_logout, name='logout'),
     # JWT и регистрация:
     path('api/register/', views.RegisterView.as_view(), name='api_register'),
     path('api/token/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),

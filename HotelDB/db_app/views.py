@@ -27,6 +27,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework_simplejwt.tokens import UntypedToken
 from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
+from django.contrib.auth import logout, authenticate, login
+from django.contrib import messages
 
 
 EXCLUDED_TABLES = [
@@ -199,11 +201,15 @@ def view_bookings(request):
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
-    # Передаем пагинированные записи
+    columns = [
+        'ID', 'Пользователь', 'Номер', 'Дата заезда', 'Дата выезда', 'Общая стоимость', 'Статус'
+    ]
     context = {
-        'bookings': page_obj
+        'table_name': 'bookings',
+        'columns': columns,
+        'page_obj': page_obj,
     }
-    return render(request, 'db_app/bookings.html', context)
+    return render(request, 'db_app/view_table.html', context)
 
 
 class RegisterView(generics.CreateAPIView):
@@ -229,6 +235,15 @@ def guest_view(request):
     return render(request, 'db_app/guest_rooms.html', {'rooms': rooms})
 
 def login_page(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
+            return redirect('db_app:list_tables')
+        else:
+            messages.error(request, 'Неверный логин или пароль')
     return render(request, 'db_app/auth.html', {'title': 'Вход'})
 
 def register_page(request):
@@ -549,3 +564,7 @@ class BookingCancelAPIView(APIView):
             return Response({'error': 'Бронирование не найдено'}, status=404)
         except Exception as e:
             return Response({'error': f'Ошибка при отмене бронирования: {str(e)}'}, status=400)
+
+def custom_logout(request):
+    logout(request)
+    return redirect('db_app:login_page')
