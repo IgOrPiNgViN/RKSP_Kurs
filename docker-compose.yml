@@ -1,0 +1,63 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./HotelDB
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./HotelDB:/app
+      - static_volume:/app/staticfiles
+      - media_volume:/app/media
+    environment:
+      - DEBUG=1
+      - DJANGO_SETTINGS_MODULE=HotelDB.settings
+      - MYSQL_DATABASE=bd
+      - MYSQL_USER=hotel_user
+      - MYSQL_PASSWORD=1234
+      - MYSQL_HOST=db
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./hotel-frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./hotel-frontend:/app
+      - /app/node_modules
+    environment:
+      - REACT_APP_API_URL=http://localhost:8000
+      - NODE_ENV=development
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  db:
+    image: mysql:8.0
+    environment:
+      - MYSQL_DATABASE=bd
+      - MYSQL_USER=hotel_user
+      - MYSQL_PASSWORD=1234
+      - MYSQL_ROOT_PASSWORD=1234
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p1234" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+volumes:
+  mysql_data:
+  static_volume:
+  media_volume:

@@ -27,6 +27,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "db_app",
+    "hotel",
     "rest_framework",
     "rest_framework_simplejwt",
     "corsheaders",
@@ -75,11 +76,11 @@ WSGI_APPLICATION = "HotelDB.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.mysql",
-        "NAME": "bd",
-        "USER": "root",
-        "PASSWORD": "1234",
-        "HOST": "localhost",
-        "PORT": "3306",
+        "NAME": os.environ.get("MYSQL_DATABASE", "bd"),
+        "USER": os.environ.get("MYSQL_USER", "hotel_user"),
+        "PASSWORD": os.environ.get("MYSQL_PASSWORD", "1234"),
+        "HOST": os.environ.get("MYSQL_HOST", "db"),
+        "PORT": os.environ.get("MYSQL_PORT", "3306"),
     }
 }
 
