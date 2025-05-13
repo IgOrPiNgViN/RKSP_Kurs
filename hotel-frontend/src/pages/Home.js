@@ -33,7 +33,7 @@ const Home = () => {
 
     const fetchRooms = async (checkIn, checkOut) => {
         try {
-            let url = 'http://localhost:8000/api/rooms/';
+            let url = 'http://localhost:8086/api/rooms/';
             if (checkIn && checkOut) {
                 url += `?check_in=${checkIn}&check_out=${checkOut}`;
             }

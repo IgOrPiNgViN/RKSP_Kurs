@@ -6,11 +6,11 @@ services:
       context: ./HotelDB
       dockerfile: Dockerfile
     ports:
-      - "8000:8000"
+      - "8086:8086"
     volumes:
       - ./HotelDB:/app
+      - ./HotelDB/media:/app/media
       - static_volume:/app/staticfiles
-      - media_volume:/app/media
     environment:
       - DEBUG=1
       - DJANGO_SETTINGS_MODULE=HotelDB.settings
@@ -28,12 +28,12 @@ services:
       context: ./hotel-frontend
       dockerfile: Dockerfile
     ports:
-      - "3000:3000"
+      - "3003:80"
     volumes:
       - ./hotel-frontend:/app
       - /app/node_modules
     environment:
-      - REACT_APP_API_URL=http://localhost:8000
+      - REACT_APP_API_URL=http://localhost:8086
       - NODE_ENV=development
     depends_on:
       - backend

@@ -4,7 +4,11 @@ from django.contrib.auth import views as auth_views
 from django.conf import settings
 from django.conf.urls.static import static
 from rest_framework_simplejwt.views import TokenObtainPairView
-from db_app.views import FreeRoomsAPIView, UsersRegisterAPIView, CustomTokenObtainPairView, CustomTokenRefreshView, UsersProfileUpdateView, UserBookingsAPIView, BookingCreateAPIView, BookingDeleteAPIView
+from db_app.views import (
+    FreeRoomsAPIView, UsersRegisterAPIView, CustomTokenObtainPairView, 
+    CustomTokenRefreshView, UsersProfileUpdateView, UserBookingsAPIView, 
+    BookingCreateAPIView, BookingDeleteAPIView, RoomCreateAPIView
+)
 
 app_name = 'db_app'
 
@@ -20,6 +24,7 @@ urlpatterns = [
     path('api/token/refresh/', CustomTokenRefreshView.as_view(), name='token_refresh'),
     path('api/user/', views.UserView.as_view(), name='api_user'),
     path('api/rooms/', FreeRoomsAPIView.as_view(), name='api_rooms'),
+    path('api/rooms/create/', RoomCreateAPIView.as_view(), name='api_create_room'),
     path('api/user/register/', UsersRegisterAPIView.as_view(), name='api_user_register'),
     path('api/user/profile/', UsersProfileUpdateView.as_view(), name='api_user_profile'),
     path('api/bookings/user/', UserBookingsAPIView.as_view(), name='api_user_bookings'),

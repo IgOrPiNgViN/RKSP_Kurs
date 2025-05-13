@@ -1,58 +1,18 @@
-# Используем Python 3.12 как базовый образ
-FROM python:3.12-slim as builder
-
-# Устанавливаем рабочую директорию
+FROM python:3.12-slim AS builder
 WORKDIR /app
-
-# Устанавливаем зависимости для сборки
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
-    pkg-config \
-    default-libmysqlclient-dev \
-    python3-dev \
-    && rm -rf /var/lib/apt/lists/*
-
-# Копируем только файлы зависимостей
-COPY requirements.txt .
-
-# Устанавливаем зависимости в виртуальное окружение
-RUN python -m venv /opt/venv
+RUN apt-get update && apt-get install -y gcc python3-dev default-libmysqlclient-dev build-essential pkg-config netcat-openbsd libmariadb-dev
+COPY requirements.txt requirements.txt
+RUN python -m venv /opt/venv && /opt/venv/bin/pip install --upgrade pip && /opt/venv/bin/pip install -r requirements.txt \
+    && /opt/venv/bin/pip freeze > /app/pip-freeze.txt
 ENV PATH="/opt/venv/bin:$PATH"
-
-# Устанавливаем переменные окружения для mysqlclient
-ENV MYSQLCLIENT_CFLAGS="-I/usr/include/mysql"
-ENV MYSQLCLIENT_LDFLAGS="-L/usr/lib/x86_64-linux-gnu -lmysqlclient"
-
-RUN pip install --no-cache-dir -r requirements.txt
-
-# Финальный образ
+ENV MYSQLCLIENT_VERSION=2.2.0
 FROM python:3.12-slim
-
-# Устанавливаем runtime зависимости
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    default-libmysqlclient-dev \
-    && rm -rf /var/lib/apt/lists/*
-
-# Копируем виртуальное окружение из builder
-COPY --from=builder /opt/venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
-
-# Устанавливаем рабочую директорию
+COPY --from=builder /opt/venv /opt/venv
 WORKDIR /app
-
-# Копируем код приложения
+RUN apt-get update && apt-get install -y default-libmysqlclient-dev libmariadb-dev
 COPY . .
-
-# Создаем непривилегированного пользователя
-RUN useradd -m appuser && chown -R appuser:appuser /app
-USER appuser
-
-# Открываем порт
-EXPOSE 8000
-
-# Добавляем wait-for-it для ожидания запуска MySQL
-ADD https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for-it.sh /wait-for-it.sh
-RUN chmod +x /wait-for-it.sh
-
-# Запускаем приложение только после готовности MySQL
-CMD ["/wait-for-it.sh", "db:3306", "--", "python", "manage.py", "runserver", "0.0.0.0:8000"] 
+COPY wait-for-it.sh /wait-for-it.sh
+RUN useradd -ms /bin/bash appuser && chown -R appuser /app
+EXPOSE 8086
+CMD ["/bin/bash", "-c", "/wait-for-it.sh db:3306 -- python manage.py migrate && python manage.py runserver 0.0.0.0:8086"] 

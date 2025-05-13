@@ -41,7 +41,7 @@ const Profile = () => {
     useEffect(() => {
         const fetchBookings = async () => {
             try {
-                const response = await axios.get('http://localhost:8000/api/bookings/user/', {
+                const response = await axios.get('http://localhost:8086/api/bookings/user/', {
                     params: { email: user?.email },
                 });
                 setBookings(response.data);
@@ -64,7 +64,7 @@ const Profile = () => {
                 setNotification({ type: 'error', message: 'Требуется авторизация' });
                 return;
             }
-            await axios.post('http://localhost:8000/api/bookings/cancel/', {
+            await axios.post('http://localhost:8086/api/bookings/cancel/', {
                 booking_id: bookingId
             }, {
                 headers: {
@@ -101,7 +101,7 @@ const Profile = () => {
         try {
             const token = await refreshAccessToken();
             if (!token) return;
-            const response = await axios.get('http://localhost:8000/api/user/profile/');
+            const response = await axios.get('http://localhost:8086/api/user/profile/');
             setUser(response.data);
         } catch (error) {
             console.error('Error fetching profile:', error);
@@ -119,7 +119,7 @@ const Profile = () => {
                 full_name: formData.full_name,
             };
             await axios.put(
-                `http://localhost:8000/api/user/profile/`,
+                `http://localhost:8086/api/user/profile/`,
                 dataToSend
             );
             await fetchUserProfile();

@@ -38,6 +38,7 @@ EXCLUDED_TABLES = [
 ]
 
 
+@login_required
 def list_tables(request):
     """Вывод списка пользовательских таблиц в базе данных, исключая системные."""
     with connection.cursor() as cursor:
@@ -50,6 +51,7 @@ def list_tables(request):
     return render(request, 'db_app/list_tables.html', {'tables': user_tables})
 
 
+@login_required
 def view_table(request, table_name):
     if table_name == 'favicon.ico':
         return HttpResponseNotFound()
@@ -60,7 +62,7 @@ def view_table(request, table_name):
         rows = cursor.fetchall()
 
         # Получаем названия колонок (первый элемент из cursor.description)
-        column_names = [desc[0] for desc in cursor.description]
+        column_names = [desc[0] for desc in (cursor.description or [])]
 
     # Пагинация: 6 записей на страницу
     paginator = Paginator(rows, 6)
@@ -171,7 +173,8 @@ def add_record(request, table_name):
 def count_bookings(request):
     with connection.cursor() as cursor:
         cursor.execute("SELECT CountBookings();")
-        bookings_count = cursor.fetchone()[0]
+        result = cursor.fetchone()
+        bookings_count = result[0] if result else 0
 
     return render(request, 'db_app/count_bookings.html', {'bookings_count': bookings_count})
 
@@ -568,3 +571,14 @@ class BookingCancelAPIView(APIView):
 def custom_logout(request):
     logout(request)
     return redirect('db_app:login_page')
+
+class RoomCreateAPIView(APIView):
+    authentication_classes = []
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        serializer = RoomSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

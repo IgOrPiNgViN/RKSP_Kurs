@@ -27,7 +27,7 @@ export const AuthProvider = ({ children }) => {
             return null;
         }
         try {
-            const response = await axios.post('http://localhost:8000/api/token/refresh/', {
+            const response = await axios.post('http://localhost:8086/api/token/refresh/', {
                 refresh: refreshToken
             });
             const { access } = response.data;
@@ -61,7 +61,7 @@ export const AuthProvider = ({ children }) => {
     const login = async (email, password) => {
         setLoading(true);
         try {
-            const response = await axios.post('http://localhost:8000/api/token/', { email, password });
+            const response = await axios.post('http://localhost:8086/api/token/', { email, password });
             const { access, refresh, user: userData } = response.data;
             setUser(userData);
             setAccessToken(access);
@@ -82,7 +82,7 @@ export const AuthProvider = ({ children }) => {
 
     const register = async (userData) => {
         try {
-            await axios.post('http://localhost:8000/api/user/register/', userData);
+            await axios.post('http://localhost:8086/api/user/register/', userData);
             return true;
         } catch (error) {
             console.error('Registration error:', error);
