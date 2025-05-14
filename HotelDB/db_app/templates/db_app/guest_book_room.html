@@ -1,0 +1,36 @@
+{% extends 'db_app/base.html' %}
+{% block title %}Бронирование номера{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card animate__animated animate__fadeIn">
+            <div class="card-body">
+                <h3 class="card-title mb-4"><i class="fas fa-calendar-plus me-2"></i>Бронирование номера {{
+                    room.room_number }}</h3>
+                <form method="post">
+                    {% csrf_token %}
+                    {{ form.non_field_errors }}
+                    <div class="mb-3">
+                        {{ form.first_name.label_tag }}
+                        {{ form.first_name }}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.last_name.label_tag }}
+                        {{ form.last_name }}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.check_in_date.label_tag }}
+                        {{ form.check_in_date }}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.check_out_date.label_tag }}
+                        {{ form.check_out_date }}
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100"><i class="fas fa-check"></i>
+                        Забронировать</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

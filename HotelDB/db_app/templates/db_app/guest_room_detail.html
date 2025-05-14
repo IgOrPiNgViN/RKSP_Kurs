@@ -1,0 +1,58 @@
+{% extends 'db_app/base.html' %}
+
+{% block title %}Номер {{ room.room_number }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card animate__animated animate__fadeIn">
+            <div class="card-body">
+                <a href="{% url 'db_app:guest_rooms' %}" class="btn btn-outline-secondary mb-3">
+                    <i class="fas fa-arrow-left me-1"></i>К списку номеров
+                </a>
+                <h2 class="card-title mb-3">Номер {{ room.room_number }}</h2>
+                <div class="mb-3">
+                    <span class="badge bg-primary">{{ room.room_type }}</span>
+                    <span class="badge bg-secondary">Вместимость: {{ room.capacity }}</span>
+                    <span class="badge bg-success">{{ room.price_per_night }} ₽/ночь</span>
+                </div>
+                <p class="mb-4">{{ room.description }}</p>
+                {% if images %}
+                <div class="mb-2 text-muted small">
+                    <b>DEBUG:</b><br>
+                    {% for img in images %}
+                    image_path: {{ img.image_path }}<br>
+                    {% if img.image_path and img.image_path.name %}
+                    image_path.url: {{ img.image_path.url }}<br>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+                <div id="roomGallery" class="carousel slide mb-4" data-bs-ride="carousel">
+                    <div class="carousel-inner">
+                        {% for img in images %}
+                        {% if img.image_path and img.image_path.name %}
+                        <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                            <img src="{{ img.image_path.url }}" class="d-block w-100 rounded" alt="Фото номера">
+                        </div>
+                        {% endif %}
+                        {% endfor %}
+                    </div>
+                    <button class="carousel-control-prev" type="button" data-bs-target="#roomGallery"
+                        data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Предыдущее</span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#roomGallery"
+                        data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Следующее</span>
+                    </button>
+                </div>
+                {% else %}
+                <div class="alert alert-info">Нет фотографий для этого номера.</div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

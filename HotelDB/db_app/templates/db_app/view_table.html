@@ -1,0 +1,153 @@
+{% extends 'db_app/base.html' %}
+
+{% block title %}{{ table_name }} - Отель{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card animate__animated animate__fadeIn">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2 class="card-title">
+                        <i class="fas fa-table me-2"></i>{{ table_name }}
+                    </h2>
+                    <a href="{% url 'db_app:add_record' table_name=table_name %}" class="btn btn-primary">
+                        <i class="fas fa-plus me-1"></i>Добавить запись
+                    </a>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-hover datatable" id="main-table">
+                        <thead>
+                            <tr>
+                                {% for column in columns %}
+                                <th>{{ column }}</th>
+                                {% endfor %}
+                                <th>Действия</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for row in page_obj %}
+                            <tr class="animate__animated animate__fadeIn">
+                                {% for cell in row %}
+                                <td>{{ cell }}</td>
+                                {% endfor %}
+                                <td>
+                                    <div class="btn-group">
+                                        <a href="{% url 'db_app:edit_record' table_name=table_name key=row.0 %}"
+                                            class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <button
+                                            onclick="confirmDelete('{% url 'db_app:delete_record' table_name=table_name key=row.0 %}')"
+                                            class="btn btn-sm btn-outline-danger">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                {% if page_obj.has_other_pages %}
+                <nav aria-label="Page navigation" class="mt-4 d-flex justify-content-center">
+                    <ul class="custom-pagination">
+                        <li class="custom-page-item {% if not page_obj.has_previous %}disabled{% endif %}">
+                            <a class="custom-page-link"
+                                href="{% if page_obj.has_previous %}?page={{ page_obj.previous_page_number }}{% else %}#{% endif %}">
+                                <span>&lt;</span>
+                            </a>
+                        </li>
+                        {% for num in page_obj.paginator.page_range %}
+                        <li class="custom-page-item {% if page_obj.number == num %}active{% endif %}">
+                            {% if page_obj.number == num %}
+                            <span class="custom-page-link">{{ num }}</span>
+                            {% else %}
+                            <a class="custom-page-link" href="?page={{ num }}">{{ num }}</a>
+                            {% endif %}
+                        </li>
+                        {% endfor %}
+                        <li class="custom-page-item {% if not page_obj.has_next %}disabled{% endif %}">
+                            <a class="custom-page-link"
+                                href="{% if page_obj.has_next %}?page={{ page_obj.next_page_number }}{% else %}#{% endif %}">
+                                <span>&gt;</span>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .custom-pagination {
+        display: flex;
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 1px 4px rgba(44, 62, 80, 0.07);
+        background: #fff;
+        width: fit-content;
+    }
+
+    .custom-page-item {
+        display: flex;
+        align-items: center;
+    }
+
+    .custom-page-link {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 60px;
+        height: 48px;
+        font-size: 1.5rem;
+        color: #2c3e50;
+        background: none;
+        border: none;
+        outline: none;
+        text-decoration: none;
+        transition: background 0.2s;
+        cursor: pointer;
+    }
+
+    .custom-page-item.active .custom-page-link {
+        background: #2c3e50;
+        color: #fff;
+        font-weight: bold;
+        border-radius: 0;
+    }
+
+    .custom-page-item.disabled .custom-page-link {
+        color: #bfc9d1;
+        pointer-events: none;
+    }
+
+    .custom-page-link:hover {
+        background: #f0f4f8;
+    }
+</style>
+
+{% block extra_js %}
+<script>
+    $(document).ready(function () {
+        $('#main-table').DataTable({
+            paging: false, // Отключаем пагинацию DataTables
+            info: false,
+            searching: true,
+            ordering: true,
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/ru.json'
+            },
+            responsive: true
+        });
+    });
+</script>
+{% endblock %}
+{% endblock %}

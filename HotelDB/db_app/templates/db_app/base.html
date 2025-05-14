@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Отель{% endblock %}</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Animate.css -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
+        }
+
+        .navbar {
+            background-color: var(--primary-color);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .navbar-brand {
+            color: white !important;
+            font-weight: bold;
+        }
+
+        .nav-link {
+            color: rgba(255, 255, 255, 0.8) !important;
+            transition: color 0.3s ease;
+        }
+
+        .nav-link:hover {
+            color: white !important;
+        }
+
+        .card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .btn-primary {
+            background-color: var(--secondary-color);
+            border: none;
+            padding: 8px 20px;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        .table {
+            background-color: white;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .table thead th {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+        }
+
+        .pagination .page-link {
+            color: var(--primary-color);
+        }
+
+        .pagination .page-item.active .page-link {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        /* Скрыть стандартную пагинацию DataTables */
+        .dataTables_paginate {
+            display: none !important;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark mb-4">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'db_app:list_tables' %}">
+                <i class="fas fa-hotel me-2"></i>Отель
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'db_app:list_tables' %}">
+                            <i class="fas fa-table me-1"></i>Таблицы
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'db_app:view_bookings' %}">
+                            <i class="fas fa-calendar-alt me-1"></i>Бронирования
+                        </a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav ms-auto" id="auth-navbar">
+                    <!-- Здесь будут кнопки входа/регистрации или имя и выход -->
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        {% block content %}
+        {% endblock %}
+    </div>
+
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <!-- DataTables JS -->
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        // Инициализация DataTables
+        $(document).ready(function () {
+            $('.datatable').DataTable({
+                language: {
+                    url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/ru.json'
+                },
+                responsive: true
+            });
+        });
+
+        // Функция для подтверждения удаления
+        function confirmDelete(url) {
+            Swal.fire({
+                title: 'Вы уверены?',
+                text: "Это действие нельзя будет отменить!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Да, удалить!',
+                cancelButtonText: 'Отмена'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = url;
+                }
+            });
+        }
+
+        // Динамический хедер авторизации
+        function renderAuthNavbar() {
+            const nav = document.getElementById('auth-navbar');
+            const username = localStorage.getItem('username');
+            if (localStorage.getItem('access') && username) {
+                nav.innerHTML = `
+                    <li class="nav-item">
+                        <span class="nav-link"><i class="fas fa-user me-1"></i>${username}</span>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" id="logout-link"><i class="fas fa-sign-out-alt me-1"></i>Выйти</a>
+                    </li>
+                `;
+                document.getElementById('logout-link').onclick = function () {
+                    localStorage.removeItem('access');
+                    localStorage.removeItem('refresh');
+                    localStorage.removeItem('username');
+                    window.location.href = '/guest/';
+                }
+            } else {
+                nav.innerHTML = `
+                    <li class="nav-item">
+                        <a class="nav-link" href="/login/">Войти</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/register/">Регистрация</a>
+                    </li>
+                `;
+            }
+        }
+        renderAuthNavbar();
+
+        // Проверка авторизации для защищённых страниц
+        (function () {
+            const guestPaths = ['/guest/', '/login/', '/register/', '/api/', '/static/', '/media/'];
+            const isGuestPage = guestPaths.some(p => window.location.pathname.startsWith(p));
+            if (!isGuestPage && !(localStorage.getItem('access') && localStorage.getItem('username'))) {
+                window.location.href = '/guest/';
+            }
+        })();
+    </script>
+</body>
+
+</html>

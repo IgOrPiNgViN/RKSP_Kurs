@@ -1,0 +1,43 @@
+{% extends 'db_app/base.html' %}
+
+{% block title %}Доступные номера{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-12">
+        <div class="card animate__animated animate__fadeIn">
+            <div class="card-body">
+                <h2 class="card-title mb-4">
+                    <i class="fas fa-bed me-2"></i>Доступные номера отеля
+                </h2>
+                <div class="row">
+                    {% for room in rooms %}
+                    <div class="col-md-4 mb-4">
+                        <a href="{% url 'db_app:guest_room_detail' room_id=room.room_id %}"
+                            style="text-decoration:none;color:inherit;">
+                            <div class="card h-100 animate__animated animate__fadeInUp">
+                                <div class="card-body">
+                                    <h5 class="card-title">Номер {{ room.room_number }}</h5>
+                                    <p class="card-text">Тип: {{ room.room_type }}</p>
+                                    <p class="card-text">Вместимость: {{ room.capacity }}</p>
+                                    <p class="card-text">Цена за ночь: <b>{{ room.price_per_night }} ₽</b></p>
+                                    <p class="card-text text-muted">{{ room.description }}</p>
+                                    <a href="{% url 'db_app:guest_book_room' room_id=room.room_id %}"
+                                        class="btn btn-success mt-2 w-100">
+                                        <i class="fas fa-calendar-plus me-1"></i>Забронировать
+                                    </a>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    {% empty %}
+                    <div class="col-12">
+                        <div class="alert alert-info">Нет доступных номеров.</div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

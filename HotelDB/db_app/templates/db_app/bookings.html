@@ -1,0 +1,200 @@
+{% extends 'db_app/base.html' %}
+
+{% block title %}Бронирования - Отель{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card animate__animated animate__fadeIn">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2 class="card-title">
+                        <i class="fas fa-calendar-alt me-2"></i>Бронирования
+                    </h2>
+                    <a href="{% url 'db_app:add_record' table_name='bookings' %}" class="btn btn-primary">
+                        <i class="fas fa-plus me-1"></i>Добавить бронирование
+                    </a>
+                </div>
+
+                <!-- Фильтры -->
+                <form method="get" class="mb-4">
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <label class="form-label">Дата заезда от</label>
+                            <input type="date" name="date_in_min" class="form-control"
+                                value="{{ request.GET.date_in_min }}">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Дата заезда до</label>
+                            <input type="date" name="date_in_max" class="form-control"
+                                value="{{ request.GET.date_in_max }}">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Дата выезда от</label>
+                            <input type="date" name="date_out_min" class="form-control"
+                                value="{{ request.GET.date_out_min }}">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Дата выезда до</label>
+                            <input type="date" name="date_out_max" class="form-control"
+                                value="{{ request.GET.date_out_max }}">
+                        </div>
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-filter me-1"></i>Применить фильтры
+                            </button>
+                            <a href="{% url 'db_app:view_bookings' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-times me-1"></i>Сбросить
+                            </a>
+                        </div>
+                    </div>
+                </form>
+
+                <div class="table-responsive">
+                    <table class="table table-hover datatable" id="bookings-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Пользователь</th>
+                                <th>Номер</th>
+                                <th>Дата заезда</th>
+                                <th>Дата выезда</th>
+                                <th>Общая стоимость</th>
+                                <th>Статус</th>
+                                <th>Действия</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for booking in bookings %}
+                            <tr class="animate__animated animate__fadeIn">
+                                <td>{{ booking.booking_id }}</td>
+                                <td>{{ booking.user }}</td>
+                                <td>{{ booking.room }}</td>
+                                <td>{{ booking.check_in_date }}</td>
+                                <td>{{ booking.check_out_date }}</td>
+                                <td>{{ booking.total_price }} ₽</td>
+                                <td>
+                                    <span
+                                        class="badge {% if booking.status == 'Подтверждено' %}bg-success{% elif booking.status == 'Отменено' %}bg-danger{% else %}bg-warning{% endif %}">
+                                        {{ booking.status }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="btn-group">
+                                        <a href="{% url 'db_app:edit_record' table_name='bookings' key=booking.booking_id %}"
+                                            class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <button
+                                            onclick="confirmDelete('{% url 'db_app:delete_record' table_name='bookings' key=booking.booking_id %}')"
+                                            class="btn btn-sm btn-outline-danger">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                {% if bookings.has_other_pages %}
+                <nav aria-label="Page navigation" class="mt-4 d-flex justify-content-center">
+                    <ul class="custom-pagination">
+                        <li class="custom-page-item {% if not bookings.has_previous %}disabled{% endif %}">
+                            <a class="custom-page-link"
+                                href="{% if bookings.has_previous %}?page={{ bookings.previous_page_number }}{% else %}#{% endif %}">
+                                <span>&lt;</span>
+                            </a>
+                        </li>
+                        {% for num in bookings.paginator.page_range %}
+                        <li class="custom-page-item {% if bookings.number == num %}active{% endif %}">
+                            {% if bookings.number == num %}
+                            <span class="custom-page-link">{{ num }}</span>
+                            {% else %}
+                            <a class="custom-page-link" href="?page={{ num }}">{{ num }}</a>
+                            {% endif %}
+                        </li>
+                        {% endfor %}
+                        <li class="custom-page-item {% if not bookings.has_next %}disabled{% endif %}">
+                            <a class="custom-page-link"
+                                href="{% if bookings.has_next %}?page={{ bookings.next_page_number }}{% else %}#{% endif %}">
+                                <span>&gt;</span>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .custom-pagination {
+        display: flex;
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 1px 4px rgba(44, 62, 80, 0.07);
+        background: #fff;
+        width: fit-content;
+    }
+
+    .custom-page-item {
+        display: flex;
+        align-items: center;
+    }
+
+    .custom-page-link {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 60px;
+        height: 48px;
+        font-size: 1.5rem;
+        color: #2c3e50;
+        background: none;
+        border: none;
+        outline: none;
+        text-decoration: none;
+        transition: background 0.2s;
+        cursor: pointer;
+    }
+
+    .custom-page-item.active .custom-page-link {
+        background: #2c3e50;
+        color: #fff;
+        font-weight: bold;
+        border-radius: 0;
+    }
+
+    .custom-page-item.disabled .custom-page-link {
+        color: #bfc9d1;
+        pointer-events: none;
+    }
+
+    .custom-page-link:hover {
+        background: #f0f4f8;
+    }
+</style>
+
+{% block extra_js %}
+<script>
+    $(document).ready(function () {
+        $('#bookings-table').DataTable({
+            paging: false, // Отключаем пагинацию DataTables
+            info: false,
+            searching: true,
+            ordering: true,
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/ru.json'
+            },
+            responsive: true
+        });
+    });
+</script>
+{% endblock %}
+{% endblock %}

@@ -1,0 +1,14 @@
+{% extends 'db_app/base.html' %}
+{% block title %}Бронирование успешно{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="alert alert-success animate__animated animate__fadeIn mt-5">
+            <h4 class="alert-heading"><i class="fas fa-check-circle me-2"></i>Бронирование успешно!</h4>
+            <p>Вы успешно забронировали номер <b>{{ room.room_number }}</b>. Мы ждём вас!</p>
+            <a href="{% url 'db_app:guest_rooms' %}" class="btn btn-outline-primary mt-3"><i
+                    class="fas fa-arrow-left"></i> К списку номеров</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

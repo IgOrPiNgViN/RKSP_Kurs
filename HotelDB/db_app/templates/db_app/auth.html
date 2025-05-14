@@ -1,0 +1,149 @@
+{% extends 'db_app/base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card animate__animated animate__fadeIn">
+            <div class="card-body">
+                <h2 class="card-title mb-4 text-center">
+                    {{ title }}
+                </h2>
+                <form id="auth-form">
+                    <div id="form-fields"></div>
+                    <div class="d-flex justify-content-between mt-4">
+                        <a href="{% url 'db_app:guest_rooms' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-1"></i>На главную
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <span id="submit-text">Войти</span>
+                        </button>
+                    </div>
+                </form>
+                <div class="mt-3 text-center">
+                    <span id="switch-link"></span>
+                </div>
+                <div id="auth-error" class="alert alert-danger mt-3 d-none"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Универсальный JS для входа и регистрации через API
+    const isLogin = window.location.pathname.includes('login');
+    const formFields = document.getElementById('form-fields');
+    const submitText = document.getElementById('submit-text');
+    const switchLink = document.getElementById('switch-link');
+    const errorDiv = document.getElementById('auth-error');
+
+    function renderLogin() {
+        formFields.innerHTML = `
+        <div class="mb-3">
+            <label class="form-label">Имя пользователя</label>
+            <input type="text" name="username" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Пароль</label>
+            <input type="password" name="password" class="form-control" required>
+        </div>
+    `;
+        submitText.textContent = 'Войти';
+        switchLink.innerHTML = 'Нет аккаунта? <a href="/register/">Зарегистрироваться</a>';
+    }
+
+    function renderRegister() {
+        formFields.innerHTML = `
+        <div class="mb-3">
+            <label class="form-label">Имя пользователя</label>
+            <input type="text" name="username" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Email</label>
+            <input type="email" name="email" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Имя</label>
+            <input type="text" name="first_name" class="form-control">
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Фамилия</label>
+            <input type="text" name="last_name" class="form-control">
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Пароль</label>
+            <input type="password" name="password" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Повторите пароль</label>
+            <input type="password" name="password2" class="form-control" required>
+        </div>
+    `;
+        submitText.textContent = 'Зарегистрироваться';
+        switchLink.innerHTML = 'Уже есть аккаунт? <a href="/login/">Войти</a>';
+    }
+
+    if (isLogin) {
+        renderLogin();
+        document.title = 'Вход';
+    } else {
+        renderRegister();
+        document.title = 'Регистрация';
+    }
+
+    document.getElementById('auth-form').onsubmit = async function (e) {
+        e.preventDefault();
+        errorDiv.classList.add('d-none');
+        const data = Object.fromEntries(new FormData(this));
+        try {
+            if (isLogin) {
+                // JWT login
+                const res = await fetch('/api/token/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: data.username, password: data.password })
+                });
+                const result = await res.json();
+                if (result.access) {
+                    localStorage.setItem('access', result.access);
+                    localStorage.setItem('refresh', result.refresh);
+                    // Получаем имя пользователя
+                    const userRes = await fetch('/api/user/', {
+                        headers: { 'Authorization': 'Bearer ' + result.access }
+                    });
+                    const user = await userRes.json();
+                    localStorage.setItem('username', user.username);
+                    window.location.href = '/';
+                } else {
+                    throw new Error(result.detail || 'Ошибка входа');
+                }
+            } else {
+                // Register
+                const res = await fetch('/api/register/', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                if (res.status === 201) {
+                    window.location.href = '/login/';
+                } else {
+                    const result = await res.json();
+                    let errors = [];
+                    for (let key in result) {
+                        if (Array.isArray(result[key])) {
+                            errors.push(result[key].join(' '));
+                        } else {
+                            errors.push(result[key]);
+                        }
+                    }
+                    throw new Error(errors.join(' '));
+                }
+            }
+        } catch (err) {
+            errorDiv.textContent = err.message;
+            errorDiv.classList.remove('d-none');
+        }
+    }
+</script>
+{% endblock %}
