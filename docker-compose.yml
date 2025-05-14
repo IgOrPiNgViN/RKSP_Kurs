@@ -12,7 +12,7 @@ services:
       - ./HotelDB/media:/app/media
       - static_volume:/app/staticfiles
     environment:
-      - DEBUG=1
+      - DEBUG=False
       - DJANGO_SETTINGS_MODULE=HotelDB.settings
       - MYSQL_DATABASE=bd
       - MYSQL_USER=hotel_user
