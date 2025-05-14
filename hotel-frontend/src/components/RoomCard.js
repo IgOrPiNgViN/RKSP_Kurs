@@ -25,7 +25,7 @@ import { useAuth } from '../contexts/AuthContext';
 import PhotoCameraBackIcon from '@mui/icons-material/PhotoCameraBack';
 
 const DEFAULT_IMAGE = 'https://via.placeholder.com/340x180?text=Нет+фото';
-const API_BASE = 'http://localhost:8086';
+const API_BASE = 'http://78.24.223.206:8086';
 
 const RoomCard = ({ room, onBooked }) => {
     const [open, setOpen] = useState(false);
@@ -57,7 +57,7 @@ const RoomCard = ({ room, onBooked }) => {
 
             console.log('Booking data:', bookingData);
 
-            const response = await axios.post('http://localhost:8086/api/bookings/',
+            const response = await axios.post('http://78.24.223.206:8086/api/bookings/',
                 bookingData,
                 {
                     headers: {
