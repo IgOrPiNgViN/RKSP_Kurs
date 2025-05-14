@@ -10,7 +10,7 @@ FROM python:3.12-slim
 ENV PATH="/opt/venv/bin:$PATH"
 COPY --from=builder /opt/venv /opt/venv
 WORKDIR /app
-RUN apt-get update && apt-get install -y default-libmysqlclient-dev libmariadb-dev
+RUN apt-get update && apt-get install -y default-libmysqlclient-dev libmariadb-dev netcat-openbsd
 COPY . .
 COPY wait-for-it.sh /wait-for-it.sh
 RUN chmod +x /wait-for-it.sh
