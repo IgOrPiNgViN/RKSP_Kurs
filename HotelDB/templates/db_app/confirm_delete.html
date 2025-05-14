@@ -1,0 +1,24 @@
+{% extends 'db_app/base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="text-center">Подтвердите удаление</h3>
+                </div>
+                <div class="card-body text-center">
+                    <p>Вы уверены, что хотите удалить эту запись?</p>
+                    <form method="post">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-outline-danger">��️ Удалить</button>
+                        <a href="{% url 'db_app:view_table' table_name=table_name %}"
+                            class="btn btn-outline-primary ms-2">Отмена</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

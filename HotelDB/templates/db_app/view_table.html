@@ -1,0 +1,80 @@
+{% extends 'db_app/base.html' %}
+
+{% block content %}
+<div class="card shadow-sm rounded-4 p-4 mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="fw-bold mb-0">Таблица: {{ table_name }}</h2>
+        <a href="{% url 'db_app:add_record' table_name=table_name %}" class="btn btn-primary">Добавить запись</a>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-bordered align-middle mb-0">
+            <thead class="align-middle">
+                <tr>
+                    {% for col in columns %}
+                    <th>{{ col }}</th>
+                    {% endfor %}
+                    <th>Действия</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if table_name == 'bookings' %}
+                    {% for booking in page_obj %}
+                    <tr>
+                        <td>{{ booking.pk }}</td>
+                        <td>Пользователь: {{ booking.user.username }}</td>
+                        <td>{{ booking.room.room_name|default:booking.room.room_id }}</td>
+                        <td>{{ booking.check_in_date }}</td>
+                        <td>{{ booking.check_out_date }}</td>
+                        <td>{{ booking.total_price }} ₽</td>
+                        <td>{{ booking.status }}</td>
+                        <td>
+                            <a href="{% url 'db_app:edit_record' table_name=table_name key=booking.pk %}" class="btn btn-outline-primary btn-sm me-1" title="Редактировать">✏️ Ред.</a>
+                            <form action="{% url 'db_app:delete_record' table_name=table_name key=booking.pk %}" method="post" style="display:inline;" onsubmit="return confirm('Вы уверены, что хотите удалить запись?');">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-outline-danger btn-sm" title="Удалить">🗑️ Удалить</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="{{ columns|length|add:'1' }}" class="text-center">Нет данных</td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    {% for row in page_obj %}
+                    <tr>
+                        {% for value in row %}
+                        <td>{{ value }}</td>
+                        {% endfor %}
+                        <td>
+                            <a href="{% url 'db_app:edit_record' table_name=table_name key=row.0 %}" class="btn btn-outline-primary btn-sm me-1" title="Редактировать">✏️ Ред.</a>
+                            <form action="{% url 'db_app:delete_record' table_name=table_name key=row.0 %}" method="post" style="display:inline;" onsubmit="return confirm('Вы уверены, что хотите удалить запись?');">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-outline-danger btn-sm" title="Удалить">🗑️ Удалить</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="{{ columns|length|add:'1' }}" class="text-center">Нет данных</td>
+                    </tr>
+                    {% endfor %}
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+    <div class="d-flex justify-content-center align-items-center mt-4">
+        <nav>
+            <ul class="pagination mb-0">
+                {% if page_obj.has_previous %}
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">&lt;</a></li>
+                {% endif %}
+                <li class="page-item active"><span class="page-link">{{ page_obj.number }}</span></li>
+                {% if page_obj.has_next %}
+                <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">&gt;</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+</div>
+{% endblock %}

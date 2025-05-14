@@ -1,0 +1,29 @@
+{% extends 'db_app/base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="text-center">{{ title }}</h3>
+                </div>
+                <div class="card-body">
+                    <form method="post" action="{% url 'db_app:login_page' %}">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="username">Имя пользователя:</label>
+                            <input type="text" class="form-control" id="username" name="username" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="password">Пароль:</label>
+                            <input type="password" class="form-control" id="password" name="password" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block mt-3">Войти</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
