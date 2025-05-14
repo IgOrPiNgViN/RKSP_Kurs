@@ -11,6 +11,7 @@ services:
       - ./HotelDB:/app
       - ./HotelDB/media:/app/media
       - static_volume:/app/staticfiles
+      - media_data:/app/media
     environment:
       - DEBUG=False
       - DJANGO_SETTINGS_MODULE=HotelDB.settings
@@ -33,6 +34,7 @@ services:
     volumes:
       - ./hotel-frontend:/app
       - /app/node_modules
+      - media_data:/app/media
     environment:
       - REACT_APP_API_URL=http://78.24.223.206:8086
       - NODE_ENV=production
@@ -62,4 +64,4 @@ services:
 volumes:
   mysql_data:
   static_volume:
-  media_volume:
+  media_data:
