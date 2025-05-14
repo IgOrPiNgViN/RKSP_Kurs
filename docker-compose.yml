@@ -9,7 +9,6 @@ services:
       - "8086:8086"
     volumes:
       - ./HotelDB:/app
-      - ./HotelDB/media:/app/media
       - static_volume:/app/staticfiles
       - media_data:/app/media
     environment:
