@@ -13,6 +13,7 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y default-libmysqlclient-dev libmariadb-dev
 COPY . .
 COPY wait-for-it.sh /wait-for-it.sh
+RUN chmod +x /wait-for-it.sh
 RUN useradd -ms /bin/bash appuser && chown -R appuser /app
 EXPOSE 8086
 CMD ["/bin/bash", "-c", "/wait-for-it.sh db:3306 -- python manage.py migrate && python manage.py collectstatic --noinput && python manage.py runserver 0.0.0.0:8086"] 
