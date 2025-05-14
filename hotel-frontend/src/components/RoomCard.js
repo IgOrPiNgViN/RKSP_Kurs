@@ -23,9 +23,9 @@ import 'react-datepicker/dist/react-datepicker.css';
 import axios from 'axios';
 import { useAuth } from '../contexts/AuthContext';
 import PhotoCameraBackIcon from '@mui/icons-material/PhotoCameraBack';
+import API_BASE from '../apiConfig';
 
 const DEFAULT_IMAGE = 'https://via.placeholder.com/340x180?text=Нет+фото';
-const API_BASE = 'http://78.24.223.206:8086';
 
 const RoomCard = ({ room, onBooked }) => {
     const [open, setOpen] = useState(false);
@@ -57,7 +57,7 @@ const RoomCard = ({ room, onBooked }) => {
 
             console.log('Booking data:', bookingData);
 
-            const response = await axios.post('http://78.24.223.206:8086/api/bookings/',
+            const response = await axios.post(`${API_BASE}/api/bookings/`,
                 bookingData,
                 {
                     headers: {
@@ -108,9 +108,10 @@ const RoomCard = ({ room, onBooked }) => {
                 {room.image_url ? (
                     <Box sx={{ width: '100%', height: 180, overflow: 'hidden', borderTopLeftRadius: 16, borderTopRightRadius: 16 }}>
                         <img
-                            src={room.image_url.startsWith('http') ? room.image_url + '?v=' + Date.now() : API_BASE + room.image_url + '?v=' + Date.now()}
+                            src={room.image_url ? room.image_url + '?v=' + Date.now() : DEFAULT_IMAGE}
                             alt={room.room_number}
                             style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                            onError={e => { e.target.onerror = null; e.target.src = DEFAULT_IMAGE; }}
                         />
                     </Box>
                 ) : (

@@ -1,5 +1,6 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import axios from 'axios';
+import API_BASE from '../apiConfig';
 
 const AuthContext = createContext(null);
 
@@ -27,7 +28,7 @@ export const AuthProvider = ({ children }) => {
             return null;
         }
         try {
-            const response = await axios.post('http://78.24.223.206:8086/api/token/refresh/', {
+            const response = await axios.post(`${API_BASE}/api/token/refresh/`, {
                 refresh: refreshToken
             });
             const { access } = response.data;
@@ -61,7 +62,7 @@ export const AuthProvider = ({ children }) => {
     const login = async (email, password) => {
         setLoading(true);
         try {
-            const response = await axios.post('http://78.24.223.206:8086/api/token/', { email, password });
+            const response = await axios.post(`${API_BASE}/api/token/`, { email, password });
             const { access, refresh, user: userData } = response.data;
             setUser(userData);
             setAccessToken(access);
@@ -82,7 +83,7 @@ export const AuthProvider = ({ children }) => {
 
     const register = async (userData) => {
         try {
-            await axios.post('http://78.24.223.206:8086/api/user/register/', userData);
+            await axios.post(`${API_BASE}/api/user/register/`, userData);
             return true;
         } catch (error) {
             console.error('Registration error:', error);

@@ -15,6 +15,7 @@ import {
 } from '@mui/material';
 import { useAuth } from '../contexts/AuthContext';
 import axios from 'axios';
+import API_BASE from '../apiConfig';
 
 const Profile = () => {
     const { user, setUser, refreshAccessToken } = useAuth();
@@ -41,7 +42,7 @@ const Profile = () => {
     useEffect(() => {
         const fetchBookings = async () => {
             try {
-                const response = await axios.get('http://78.24.223.206:8086/api/bookings/user/', {
+                const response = await axios.get(`${API_BASE}/api/bookings/user/`, {
                     params: { email: user?.email },
                 });
                 setBookings(response.data);
@@ -64,7 +65,7 @@ const Profile = () => {
                 setNotification({ type: 'error', message: 'Требуется авторизация' });
                 return;
             }
-            await axios.post('http://78.24.223.206:8086/api/bookings/cancel/', {
+            await axios.post(`${API_BASE}/api/bookings/cancel/`, {
                 booking_id: bookingId
             }, {
                 headers: {
@@ -101,7 +102,7 @@ const Profile = () => {
         try {
             const token = await refreshAccessToken();
             if (!token) return;
-            const response = await axios.get('http://78.24.223.206:8086/api/user/profile/');
+            const response = await axios.get(`${API_BASE}/api/user/profile/`);
             setUser(response.data);
         } catch (error) {
             console.error('Error fetching profile:', error);
@@ -119,7 +120,7 @@ const Profile = () => {
                 full_name: formData.full_name,
             };
             await axios.put(
-                `http://78.24.223.206:8086/api/user/profile/`,
+                `${API_BASE}/api/user/profile/`,
                 dataToSend
             );
             await fetchUserProfile();

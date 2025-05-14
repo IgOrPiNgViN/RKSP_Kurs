@@ -15,6 +15,7 @@ import RoomCard from '../components/RoomCard';
 import axios from 'axios';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
+import API_BASE from '../apiConfig';
 
 const PAGE_SIZE = 6;
 
@@ -33,7 +34,7 @@ const Home = () => {
 
     const fetchRooms = async (checkIn, checkOut) => {
         try {
-            let url = 'http://78.24.223.206:8086/api/rooms/';
+            let url = `${API_BASE}/api/rooms/`;
             if (checkIn && checkOut) {
                 url += `?check_in=${checkIn}&check_out=${checkOut}`;
             }

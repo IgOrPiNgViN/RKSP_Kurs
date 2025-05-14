@@ -37,12 +37,17 @@ class RoomSerializer(serializers.ModelSerializer):
     def get_image_url(self, obj):
         from .models import RoomImages
         image = RoomImages.objects.filter(room=obj).first()
-        if image and image.image_path:
+        if image and image.image_path and image.image_path.storage.exists(image.image_path.name):
             request = self.context.get('request')
             if request:
                 return request.build_absolute_uri(image.image_path.url)
             return image.image_path.url
         return None
+
+    def validate_price_per_night(self, value):
+        if value < 0:
+            raise serializers.ValidationError('Цена не может быть отрицательной')
+        return value
 
 class UsersRegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)

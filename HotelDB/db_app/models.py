@@ -1,4 +1,6 @@
 from django.db import models
+from django.db.models.signals import post_delete
+from django.dispatch import receiver
 
 
 class Admins(models.Model):
@@ -45,6 +47,12 @@ class RoomImages(models.Model):
         managed = False
         db_table = "room_images"
 
+# Удалять файл из хранилища при удалении объекта RoomImages
+@receiver(post_delete, sender=RoomImages)
+def delete_image_file(sender, instance, **kwargs):
+    if instance.image_path:
+        instance.image_path.delete(False)
+
 
 class Rooms(models.Model):
     room_id = models.AutoField(primary_key=True)
@@ -56,6 +64,11 @@ class Rooms(models.Model):
 
     def __str__(self):
         return "Комната №" + self.room_number
+
+    def save(self, *args, **kwargs):
+        if self.price_per_night is not None and self.price_per_night <= 0:
+            self.price_per_night = 1
+        super().save(*args, **kwargs)
 
     class Meta:
         managed = False
