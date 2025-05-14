@@ -10,9 +10,10 @@ FROM python:3.12-slim
 ENV PATH="/opt/venv/bin:$PATH"
 COPY --from=builder /opt/venv /opt/venv
 WORKDIR /app
-RUN apt-get update && apt-get install -y default-libmysqlclient-dev libmariadb-dev
+RUN apt-get update && apt-get install -y default-libmysqlclient-dev libmariadb-dev netcat-openbsd
 COPY . .
 COPY wait-for-it.sh /wait-for-it.sh
+RUN chmod +x /wait-for-it.sh
 RUN useradd -ms /bin/bash appuser && chown -R appuser /app
 EXPOSE 8086
-CMD ["/bin/bash", "-c", "/wait-for-it.sh db:3306 -- python manage.py migrate && python manage.py runserver 0.0.0.0:8086"] 
+CMD ["/bin/bash", "-c", "/wait-for-it.sh db:3306 -- python manage.py migrate && python manage.py collectstatic --noinput && python manage.py runserver 0.0.0.0:8086"] 
