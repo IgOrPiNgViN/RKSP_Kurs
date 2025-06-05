@@ -73,7 +73,10 @@ class UsersRegisterSerializer(serializers.ModelSerializer):
         last_name = validated_data.pop("last_name", "")
         full_name = f"{first_name} {last_name}".strip()
         validated_data["full_name"] = full_name
-        user = Users.objects.create(password_hash=password, **validated_data)
+        
+        user = Users(**validated_data)
+        user.set_password(password)
+        user.save()
         return user
 
 class UsersProfileUpdateSerializer(serializers.ModelSerializer):

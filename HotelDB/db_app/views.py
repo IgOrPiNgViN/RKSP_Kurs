@@ -346,7 +346,7 @@ class CustomTokenObtainPairView(APIView):
             user = Users.objects.get(email=email)
         except Users.DoesNotExist:
             return Response({'error': 'Пользователь не найден'}, status=404)
-        if user.password_hash != password:
+        if not user.check_password(password):
             return Response({'error': 'Неверный пароль'}, status=400)
         # Формируем токен вручную (НЕ используем for_user!)
         refresh = RefreshToken()

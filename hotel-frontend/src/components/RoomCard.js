@@ -24,19 +24,48 @@ import axios from 'axios';
 import { useAuth } from '../contexts/AuthContext';
 import PhotoCameraBackIcon from '@mui/icons-material/PhotoCameraBack';
 import API_BASE from '../apiConfig';
+import { useNavigate } from 'react-router-dom';
 
 const DEFAULT_IMAGE = 'https://via.placeholder.com/340x180?text=Нет+фото';
 
 const RoomCard = ({ room, onBooked }) => {
+    const navigate = useNavigate();
+    const { user } = useAuth();
     const [open, setOpen] = useState(false);
     const [startDate, setStartDate] = useState(null);
     const [endDate, setEndDate] = useState(null);
     const [error, setError] = useState(null);
-    const { user } = useAuth();
+    const [authDialogOpen, setAuthDialogOpen] = useState(false);
+
+    const handleOpen = () => {
+        if (!user) {
+            setAuthDialogOpen(true);
+            return;
+        }
+        setOpen(true);
+    };
+
+    const handleClose = () => {
+        setOpen(false);
+        setError(null);
+    };
+
+    const handleAuthDialogClose = () => {
+        setAuthDialogOpen(false);
+    };
+
+    const handleLogin = () => {
+        handleAuthDialogClose();
+        navigate('/login');
+    };
+
+    const handleRegister = () => {
+        handleAuthDialogClose();
+        navigate('/register');
+    };
 
     const handleBook = async () => {
         if (!user) {
-            // Перенаправить на страницу входа
             return;
         }
         try {
@@ -147,14 +176,15 @@ const RoomCard = ({ room, onBooked }) => {
                 <Button
                     variant="contained"
                     color="primary"
-                    onClick={() => setOpen(true)}
+                    onClick={handleOpen}
                     sx={{ m: 2, borderRadius: 2, fontWeight: 600, boxShadow: 2 }}
                 >
                     Забронировать
                 </Button>
             </Card>
 
-            <Dialog open={open} onClose={() => setOpen(false)}>
+            {/* Модальное окно бронирования */}
+            <Dialog open={open} onClose={handleClose}>
                 <DialogTitle>Бронирование номера</DialogTitle>
                 <DialogContent>
                     <Typography variant="subtitle1" sx={{ mt: 2 }}>
@@ -184,9 +214,28 @@ const RoomCard = ({ room, onBooked }) => {
                     </Box>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setOpen(false)}>Отмена</Button>
+                    <Button onClick={handleClose}>Отмена</Button>
                     <Button onClick={handleBook} variant="contained" color="primary">
                         Подтвердить
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
+            {/* Модальное окно для неавторизованных пользователей */}
+            <Dialog open={authDialogOpen} onClose={handleAuthDialogClose}>
+                <DialogTitle>Требуется авторизация</DialogTitle>
+                <DialogContent>
+                    <Typography>
+                        Для бронирования номера необходимо войти в систему или зарегистрироваться.
+                    </Typography>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleAuthDialogClose}>Отмена</Button>
+                    <Button onClick={handleLogin} color="primary">
+                        Войти
+                    </Button>
+                    <Button onClick={handleRegister} color="primary" variant="contained">
+                        Регистрация
                     </Button>
                 </DialogActions>
             </Dialog>
